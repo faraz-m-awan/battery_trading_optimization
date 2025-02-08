@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "test-env"
+name = "battery_optimization"
 version = "0.1.0"
 description = ""
 authors = [" "]
@@ -11,6 +11,8 @@ pandas = "^2.2.3"
 pyomo = "^6.8.2"
 highspy = "^1.9.0"
 matplotlib = "^3.10.0"
+pytest = "^8.3.4"
+streamlit = "^1.42.0"
 
 
 [build-system]
