@@ -30,7 +30,7 @@ jobs:
         run: poetry install --no-root --no-interaction --no-ansi
 
       - name: Set PYTHONPATH
-        run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)" >> $GITHUB_ENV  # Ensure imports work
+        run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)" >> $GITHUB_ENV 
       
       - name: Run Unit Tests
         run: poetry run pytest tests/
