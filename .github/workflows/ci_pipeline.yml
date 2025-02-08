@@ -1,0 +1,52 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - intra-day-feature
+  pull_request:
+    branches:
+      - main
+      - intra-day-feature
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install Poetry
+        run: pip install poetry
+      
+      - name: Install Dependencies
+        run: poetry install --no-root --no-interaction --no-ansi
+      
+      - name: Run Unit Tests
+        run: poetry run pytest tests/
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      
+      - name: Build Docker Image
+        run: docker build -t battery-trading-app .
+      
+      - name: Run Container Tests
+        run: |
+          docker run --name battery-optimizer-container -d -p 8501:8501 battery-trading-app
+          sleep 5  # Give the container some time to start
+          docker logs battery-optimizer-container
+      
+      - name: Cleanup Docker Container
+        run: docker rm -f battery-optimizer-container
