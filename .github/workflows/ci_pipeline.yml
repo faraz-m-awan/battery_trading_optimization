@@ -27,7 +27,8 @@ jobs:
         run: pip install poetry
       
       - name: Install Dependencies
-        run: poetry install --no-root --no-interaction --no-ansi
+        run: poetry install --with dev --no-interaction --no-ansi
+
       
       - name: Run Unit Tests
         run: poetry run pytest tests/
