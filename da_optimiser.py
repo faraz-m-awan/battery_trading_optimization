@@ -3,9 +3,10 @@ import pyomo.environ as pyo
 from pyomo.environ import value
 import pandas as pd
 import matplotlib.pyplot as plt
+plt.style.use('ggplot')
 
 class BatteryOptimizer:
-    def __init__(self, data, day=38, power=100, capacity=100,
+    def __init__(self, data, day=15, power=100, capacity=100,
                  charging_efficiency=0.85, discharging_efficiency=1.0,
                  daily_cycles=2.0, initial_soc=25):
         """
@@ -47,22 +48,67 @@ class BatteryOptimizer:
         model.v_da = pyo.Var(model.time)  # net volume traded in day-ahead market
         model.soc = pyo.Var(model.time, within=pyo.NonNegativeReals)
 
+        # Cashflow: Objective: maximize day-ahead revenue.
+        def objective_da(model):
+            return pyo.quicksum(model.v_da[t] * self.da_prices[t] for t in model.time)
+        model.obj_da = pyo.Objective(rule=objective_da, sense=pyo.maximize)
+
+
+        # def upper_bound(model, t):
+        #     return model.flow_out[t] <= power
+
+        # Power limits for day-ahead trades.
+        model.up_bound_eqn_da = pyo.Constraint(model.time, rule=lambda m, t: m.flow_out_da[t] <= self.power)
+
+        # def lower_bound(model, t):
+        #     return model.flow_in[t] <= power
+
+        model.low_bound_eqn_da = pyo.Constraint(model.time, rule=lambda m, t: m.flow_in_da[t] <= self.power)
+
+        # def soc_bound(model, t):
+        #     return model.soc[t] <= capacity
+
+        # SOC limits.
+        model.soc_bound_da = pyo.Constraint(model.time, rule=lambda m, t: m.soc[t] <= self.capacity)
+
+        # def final_soc_bound(model):
+        #     # Same energy in as out
+        #     return model.soc[model.time.at(-1)] == initial_soc
+
+        # Final SOC must equal initial SOC.
+        def final_soc_da(model):
+            # last = max(model.time)
+            return model.soc[model.time.at(-1)] == self.initial_soc
+        model.final_soc_da = pyo.Constraint(rule=final_soc_da)
+
+        # def energy_rule(model, t):
+        #     return model.volume_traded[t] == model.flow_out[t] - model.flow_in[t]
+
+
         # Link: net trade equals discharge minus charge.
         def energy_rule_da(model, t):
             return model.v_da[t] == model.flow_out_da[t] - model.flow_in_da[t]
         model.energy_eqn_da = pyo.Constraint(model.time, rule=energy_rule_da)
 
-        # Power limits for day-ahead trades.
-        model.up_bound_eqn_da = pyo.Constraint(model.time, rule=lambda m, t: m.flow_out_da[t] <= self.power)
-        model.low_bound_eqn_da = pyo.Constraint(model.time, rule=lambda m, t: m.flow_in_da[t] <= self.power)
-
-        # SOC limits.
-        model.soc_bound_da = pyo.Constraint(model.time, rule=lambda m, t: m.soc[t] <= self.capacity)
+        # def cycling_limit(model):
+        #     return (
+        #         pyo.quicksum(model.flow_out[t] for t in model.flow_out)
+        #         <= daily_cycles * capacity
+        #     )
 
         # Battery cycling limit (total discharge cannot exceed a multiple of capacity).
         def cycling_limit_da(model):
             return pyo.quicksum(model.flow_out_da[t] for t in model.time) <= self.daily_cycles * self.capacity
         model.cycling_limit_da = pyo.Constraint(rule=cycling_limit_da)
+
+
+        # def soc_rule(model, t):
+        #     if t != model.time.at(1):
+        #         return model.soc[t] == model.soc[t - 1] + (
+        #             - model.flow_out[t - 1] * discharging_efficiency
+        #             + model.flow_in[t - 1] * charging_efficiency)
+        #     else:
+        #         return model.soc[t] == initial_soc
 
         # SOC dynamics: initial condition and update rule.
         def soc_rule_da(model, t):
@@ -73,14 +119,14 @@ class BatteryOptimizer:
                     - model.flow_out_da[t-1] * self.discharging_efficiency \
                     + model.flow_in_da[t-1] * self.charging_efficiency
         model.soc_rule_da = pyo.Constraint(model.time, rule=soc_rule_da)
+        
+        def final_export(model):
+            return model.v_da[model.time.at(-1)] == 0
+        model.sum_export_da = pyo.Constraint(rule=final_export)
 
-        # Final SOC must equal initial SOC.
-        def final_soc_da(model):
-            last = max(model.time)
-            return model.soc[last] == self.initial_soc
-        model.final_soc_da = pyo.Constraint(rule=final_soc_da)
+        
 
-        # Hourly consistency: For each hour, both half-hourly settlements have the same day-ahead trade.
+        #Hourly consistency: For each hour, both half-hourly settlements have the same day-ahead trade.
         def hourly_consistency(model, h):
             t1 = 2 * h
             t2 = 2 * h + 1
@@ -90,10 +136,7 @@ class BatteryOptimizer:
                 return pyo.Constraint.Skip
         model.hourly_consistency = pyo.Constraint(range(len(self.da_prices) // 2), rule=hourly_consistency)
 
-        # Objective: maximize day-ahead revenue.
-        def objective_da(model):
-            return pyo.quicksum(model.v_da[t] * self.da_prices[t] for t in model.time)
-        model.obj_da = pyo.Objective(rule=objective_da, sense=pyo.maximize)
+        
 
         # Solve the day-ahead model.
         solver = pyo.SolverFactory("appsi_highs")
@@ -279,8 +322,21 @@ def main():
     ax_da_sec.tick_params(axis="y", labelcolor="red")
     ax_da_sec.legend(loc="upper right")
     st.pyplot(fig_da)
+
+    # Chart 2: Day-Ahead Price Chart
+    st.subheader("Day-Ahead Price Chart")
+    fig_price_da, ax_price_da = plt.subplots(figsize=(10, 6))
+    ax_price_da.plot(results_df["Settlement Period"], results_df["DayAhead Price"],
+                     label="Day-Ahead Price", marker="o", color="purple")
+    ax_price_da.set_xlabel("Settlement Period")
+    ax_price_da.set_ylabel("Price", color="purple")
+    ax_price_da.tick_params(axis="y", labelcolor="purple")
+    ax_price_da.legend(loc="upper left")
+    st.pyplot(fig_price_da)
     
-    # Chart 2: Intra-Day Trading Results
+
+    
+    # Chart 3: Intra-Day Trading Results
     st.subheader("Intra-Day Trading Chart")
     fig_id, ax_id = plt.subplots(figsize=(10, 6))
     ax_id.plot(results_df["Settlement Period"], results_df["IntraDay Trade (vol)"],
@@ -297,6 +353,22 @@ def main():
     ax_id_sec.tick_params(axis="y", labelcolor="orange")
     ax_id_sec.legend(loc="upper right")
     st.pyplot(fig_id)
+
+
+    ##########################################################
+
+     
+    
+    # Chart 4: Intra-Day Price Chart
+    st.subheader("Intra-Day Price Chart")
+    fig_price_id, ax_price_id = plt.subplots(figsize=(10, 6))
+    ax_price_id.plot(results_df["Settlement Period"], results_df["IntraDay Price"],
+                     label="Intra-Day Price", marker="o", color="brown")
+    ax_price_id.set_xlabel("Settlement Period")
+    ax_price_id.set_ylabel("Price", color="brown")
+    ax_price_id.tick_params(axis="y", labelcolor="brown")
+    ax_price_id.legend(loc="upper left")
+    st.pyplot(fig_price_id)
 
 if __name__ == "__main__":
     main()
