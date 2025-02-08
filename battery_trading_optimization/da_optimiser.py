@@ -333,9 +333,7 @@ def main():
     ax_price_da.tick_params(axis="y", labelcolor="purple")
     ax_price_da.legend(loc="upper left")
     st.pyplot(fig_price_da)
-    
-
-    
+        
     # Chart 3: Intra-Day Trading Results
     st.subheader("Intra-Day Trading Chart")
     fig_id, ax_id = plt.subplots(figsize=(10, 6))
@@ -353,12 +351,7 @@ def main():
     ax_id_sec.tick_params(axis="y", labelcolor="orange")
     ax_id_sec.legend(loc="upper right")
     st.pyplot(fig_id)
-
-
-    ##########################################################
-
-     
-    
+   
     # Chart 4: Intra-Day Price Chart
     st.subheader("Intra-Day Price Chart")
     fig_price_id, ax_price_id = plt.subplots(figsize=(10, 6))
