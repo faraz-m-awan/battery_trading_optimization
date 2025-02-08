@@ -29,7 +29,7 @@ def test_optimize_day_ahead():
     # Verify that there are 48 settlement periods.
     assert len(optimizer.v_da_sol) == 48, "Expected 48 day‑ahead settlement results."
     # Check that the final state of charge equals the initial SOC.
-    assert abs(optimizer.soc_da_sol[-1] - optimizer.initial_soc) < 1e-3, "Final SOC should equal the initial SOC."
+    assert abs(optimizer.soc_da_sol[-1] - optimizer.initial_soc) < 0.001, "Final SOC should equal the initial SOC."
 
 def test_optimize_intra_day():
     df = create_dummy_data()
@@ -49,7 +49,7 @@ def test_optimize_intra_day():
     # Verify that there are 48 settlement periods.
     assert len(optimizer.v_id_sol) == 48, "Expected 48 intra‑day settlement results."
     # Check that the combined SOC ends at the initial SOC.
-    assert abs(optimizer.soc_total_sol[-1] - optimizer.initial_soc) < 1e-3, "Combined SOC should end at the initial SOC."
+    assert abs(optimizer.soc_total_sol[-1] - optimizer.initial_soc) < 0.001, "Combined SOC should end at the initial SOC."
 
 def test_get_results():
     df = create_dummy_data()
