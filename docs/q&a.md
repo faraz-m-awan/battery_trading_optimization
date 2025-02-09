@@ -15,7 +15,7 @@ The goal of this study is to optimize battery trading operations in the day-ahea
 ## 2. Findings
 
 ```markdown
-https://raw.githubusercontent.com/faraz-m-awan/battery_trading_optimization/intra-day-feature/docs/figures/day_ahead.png?raw=true
+![Day-Ahead Trading and Price Chart](https://raw.githubusercontent.com/faraz-m-awan/battery_trading_optimization/intra-day-feature/docs/figures/day_ahead.png?raw=true)
 
 ```
 
