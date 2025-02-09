@@ -305,63 +305,126 @@ def main():
     st.subheader("Detailed Results per Settlement Period")
     st.dataframe(results_df)
     
-    # Chart 1: Day-Ahead Trading Results
-    st.subheader("Day-Ahead Trading Chart")
-    fig_da, ax_da = plt.subplots(figsize=(10, 6))
+    # # Chart 1: Day-Ahead Trading Results
+    # st.subheader("Day-Ahead Trading Chart")
+    # fig_da, ax_da = plt.subplots(1,2, figsize=(10, 6))
+    # ax_da.plot(results_df["Settlement Period"], results_df["DayAhead Trade (vol)"],
+    #            label="Day-Ahead Trade Volume", marker="o", color="blue")
+    # ax_da.set_xlabel("Settlement Period")
+    # ax_da.set_ylabel("Trade Volume", color="blue")
+    # ax_da.tick_params(axis="y", labelcolor="blue")
+    # ax_da.legend(loc="upper left")
+    
+    # ax_da_sec = ax_da.twinx()
+    # ax_da_sec.plot(results_df["Settlement Period"], results_df["DayAhead Cashflow"],
+    #                label="Day-Ahead Cashflow", marker="o", color="red")
+    # ax_da_sec.set_ylabel("Cashflow", color="red")
+    # ax_da_sec.tick_params(axis="y", labelcolor="red")
+    # ax_da_sec.legend(loc="upper right")
+    # st.pyplot(fig_da)
+
+    # # Chart 2: Day-Ahead Price Chart
+    # st.subheader("Day-Ahead Price Chart")
+    # fig_price_da, ax_price_da = plt.subplots(figsize=(10, 6))
+    # ax_price_da.plot(results_df["Settlement Period"], results_df["DayAhead Price"],
+    #                  label="Day-Ahead Price", marker="o", color="purple")
+    # ax_price_da.set_xlabel("Settlement Period")
+    # ax_price_da.set_ylabel("Price", color="purple")
+    # ax_price_da.tick_params(axis="y", labelcolor="purple")
+    # ax_price_da.legend(loc="upper left")
+    # st.pyplot(fig_price_da)
+
+    # # Chart 3: Intra-Day Trading Results
+    # st.subheader("Intra-Day Trading Chart")
+    # fig_id, ax_id = plt.subplots(figsize=(10, 6))
+    # ax_id.plot(results_df["Settlement Period"], results_df["IntraDay Trade (vol)"],
+    #            label="Intra-Day Trade Volume", marker="o", color="green")
+    # ax_id.set_xlabel("Settlement Period")
+    # ax_id.set_ylabel("Trade Volume", color="green")
+    # ax_id.tick_params(axis="y", labelcolor="green")
+    # ax_id.legend(loc="upper left")
+    
+    # ax_id_sec = ax_id.twinx()
+    # ax_id_sec.plot(results_df["Settlement Period"], results_df["IntraDay Cashflow"],
+    #                label="Intra-Day Cashflow", marker="o", color="orange")
+    # ax_id_sec.set_ylabel("Cashflow", color="orange")
+    # ax_id_sec.tick_params(axis="y", labelcolor="orange")
+    # ax_id_sec.legend(loc="upper right")
+    # st.pyplot(fig_id)
+   
+    # # Chart 4: Intra-Day Price Chart
+    # st.subheader("Intra-Day Price Chart")
+    # fig_price_id, ax_price_id = plt.subplots(figsize=(10, 6))
+    # ax_price_id.plot(results_df["Settlement Period"], results_df["IntraDay Price"],
+    #                  label="Intra-Day Price", marker="o", color="brown")
+    # ax_price_id.set_xlabel("Settlement Period")
+    # ax_price_id.set_ylabel("Price", color="brown")
+    # ax_price_id.tick_params(axis="y", labelcolor="brown")
+    # ax_price_id.legend(loc="upper left")
+    # st.pyplot(fig_price_id)
+
+    # Day-Ahead Trading and Price Charts
+    st.subheader("Day-Ahead Trading and Price Charts")
+    fig_da, (ax_da, ax_price_da) = plt.subplots(1, 2, figsize=(14, 6))
+
+    # Chart 1: Day-Ahead Trading Results (Left Side)
     ax_da.plot(results_df["Settlement Period"], results_df["DayAhead Trade (vol)"],
-               label="Day-Ahead Trade Volume", marker="o", color="blue")
+            label="Day-Ahead Trade Volume", marker="o", color="blue")
     ax_da.set_xlabel("Settlement Period")
     ax_da.set_ylabel("Trade Volume", color="blue")
     ax_da.tick_params(axis="y", labelcolor="blue")
     ax_da.legend(loc="upper left")
-    
+
     ax_da_sec = ax_da.twinx()
     ax_da_sec.plot(results_df["Settlement Period"], results_df["DayAhead Cashflow"],
-                   label="Day-Ahead Cashflow", marker="o", color="red")
+                label="Day-Ahead Cashflow", marker="o", color="red")
     ax_da_sec.set_ylabel("Cashflow", color="red")
     ax_da_sec.tick_params(axis="y", labelcolor="red")
     ax_da_sec.legend(loc="upper right")
-    st.pyplot(fig_da)
 
-    # Chart 2: Day-Ahead Price Chart
-    st.subheader("Day-Ahead Price Chart")
-    fig_price_da, ax_price_da = plt.subplots(figsize=(10, 6))
+    # Chart 2: Day-Ahead Price Chart (Right Side)
     ax_price_da.plot(results_df["Settlement Period"], results_df["DayAhead Price"],
-                     label="Day-Ahead Price", marker="o", color="purple")
+                    label="Day-Ahead Price", marker="o", color="purple")
     ax_price_da.set_xlabel("Settlement Period")
     ax_price_da.set_ylabel("Price", color="purple")
     ax_price_da.tick_params(axis="y", labelcolor="purple")
     ax_price_da.legend(loc="upper left")
-    st.pyplot(fig_price_da)
-        
-    # Chart 3: Intra-Day Trading Results
-    st.subheader("Intra-Day Trading Chart")
-    fig_id, ax_id = plt.subplots(figsize=(10, 6))
+
+    # Adjust layout and display Day-Ahead charts
+    plt.tight_layout()
+    st.pyplot(fig_da)
+
+    # Intra-Day Trading and Price Charts
+    st.subheader("Intra-Day Trading and Price Charts")
+    fig_id, (ax_id, ax_price_id) = plt.subplots(1, 2, figsize=(14, 6))
+
+    # Chart 3: Intra-Day Trading Results (Left Side)
     ax_id.plot(results_df["Settlement Period"], results_df["IntraDay Trade (vol)"],
-               label="Intra-Day Trade Volume", marker="o", color="green")
+            label="Intra-Day Trade Volume", marker="o", color="green")
     ax_id.set_xlabel("Settlement Period")
     ax_id.set_ylabel("Trade Volume", color="green")
     ax_id.tick_params(axis="y", labelcolor="green")
     ax_id.legend(loc="upper left")
-    
+
     ax_id_sec = ax_id.twinx()
     ax_id_sec.plot(results_df["Settlement Period"], results_df["IntraDay Cashflow"],
-                   label="Intra-Day Cashflow", marker="o", color="orange")
+                label="Intra-Day Cashflow", marker="o", color="orange")
     ax_id_sec.set_ylabel("Cashflow", color="orange")
     ax_id_sec.tick_params(axis="y", labelcolor="orange")
     ax_id_sec.legend(loc="upper right")
-    st.pyplot(fig_id)
-   
-    # Chart 4: Intra-Day Price Chart
-    st.subheader("Intra-Day Price Chart")
-    fig_price_id, ax_price_id = plt.subplots(figsize=(10, 6))
+
+    # Chart 4: Intra-Day Price Chart (Right Side)
     ax_price_id.plot(results_df["Settlement Period"], results_df["IntraDay Price"],
-                     label="Intra-Day Price", marker="o", color="brown")
+                    label="Intra-Day Price", marker="o", color="brown")
     ax_price_id.set_xlabel("Settlement Period")
     ax_price_id.set_ylabel("Price", color="brown")
     ax_price_id.tick_params(axis="y", labelcolor="brown")
     ax_price_id.legend(loc="upper left")
-    st.pyplot(fig_price_id)
+
+    # Adjust layout and display Intra-Day charts
+    plt.tight_layout()
+    st.pyplot(fig_id)
+
 
 if __name__ == "__main__":
     main()
