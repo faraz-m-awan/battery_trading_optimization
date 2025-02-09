@@ -1,7 +1,7 @@
 # Documentation: Enhancements to Battery Revenue Optimization Model
 
 ## 1. Overview
-This document provides an overview of the modifications made to the `da_optimiser.py` script, originally based on `da_optimiser_old.py`. The primary enhancements include:
+This document provides an overview of the modifications made to the `da_optimiser.py` script. The primary enhancements include:
 
 - **Integration of intra-day market optimization**
 - **Refactoring the script into an object-oriented format**
